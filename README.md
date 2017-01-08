@@ -1,6 +1,6 @@
 # ystl
-YSTL stands for Yamae Standard Template Library, which is a customized implementation by the C++ study group at Join Together Developers
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](http://opensource.org/licenses/MIT)
+YSTL stands for Yamae Standard Template Library, which is a customized implementation by the C++ study group at Join Together Developers.
 
 ## Links
 [YSTL Wiki](https://github.com/huklee/ystl/wiki)
