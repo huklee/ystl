@@ -6,6 +6,12 @@ YSTL stands for Yamae Standard Template Library, which is a customized implement
 ## Links
 [YSTL Wiki](https://github.com/huklee/ystl/wiki)
 
+## Group-study schedule
+
+Date|Subject|Specification
+---|---|---
+2017-01-22|list|[std::list](http://www.cplusplus.com/reference/list/list/)
+
 ## License
 
 ```
