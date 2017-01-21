@@ -30,12 +30,11 @@ node<T>::node(const T& val){
 	this->next = NULL;
 }
 
-/*
-template<class T>
-list::list(){};
 
 template<class T>
-list::list(const T &val){
+list<T>::list(){};
+
+template<class T>
+list<T>::list(const T &val){
 	this->head = new node<T>(val);
 }
-*/
