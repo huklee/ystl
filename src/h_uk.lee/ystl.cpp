@@ -1,17 +1,41 @@
-/*
-template<typename T>
-node::node<T>(){};
+// interface
 
-template<typename T>
-node::node<T>(const T& val){
+template<class T>
+class node{
+private:
+	T val;
+	node* next;
+public:
+	node();
+	node(const T& val);
+};
+
+template<class T>
+class list{
+private:
+	node<T>* head;		
+public:
+	list();
+	list(const T &val);
+};
+
+// implementation
+
+template<class T>
+node<T>::node(){};
+
+template<class T>
+node<T>::node(const T& val){
 	this->val = val;
+	this->next = NULL;
 }
 
-template<typename T>
-list::list<T>(){};
+/*
+template<class T>
+list::list(){};
 
-template<typename T>
-list::list<T>(const list<T> &l){
-	this->head = l;
+template<class T>
+list::list(const T &val){
+	this->head = new node<T>(val);
 }
 */
