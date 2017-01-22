@@ -9,8 +9,21 @@ YSTL stands for Yamae Standard Template Library, which is a customized implement
 ## Group-study schedule
 
 Date|Subject|Specification
----|---|---
+---|---|---|---
+2017-02-12|vector, deque|[std::vector](http://www.cplusplus.com/reference/vector/vector/) [std::deque](http://www.cplusplus.com/reference/deque/deque/)
 2017-01-22|list|[std::list](http://www.cplusplus.com/reference/list/list/)
+
+## Implmentations
+[samchon](https://github.com/samchon/mystl/tree/master/src/mystl)
+
+[leejaelin](https://github.com/leejaelin/ystl/tree/master/src)
+
+[huklee](https://github.com/huklee/ystl/tree/h_uk.lee/src)
+
+[denggoon](https://github.com/denggoon/ystl/tree/master/src)
+
+[DaeGwang](https://gist.github.com/DaeGwang/5125a7aaf7273bf56c6cb95a97652f5f)
+
 
 ## License
 
