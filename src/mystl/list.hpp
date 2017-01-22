@@ -62,8 +62,7 @@ namespace mystl
 		/**
 		 * Fill Constructor.
 		 */
-		template <typename U>
-		list(size_t n, const U &val)
+		list(size_t n, const T &val)
 			: list()
 		{
 			this->insert(this->end(), n, val);
@@ -85,6 +84,12 @@ namespace mystl
 		~list()
 		{
 			_Remove_all();
+		};
+
+		void assign(size_t n, const T &val)
+		{
+			clear();
+			this->insert(this->end(), n, val);
 		};
 
 		template <class InputIterator>
@@ -202,29 +207,57 @@ namespace mystl
 		=============================================================
 			PUSH & POP
 		---------------------------------------------------------- */
-		template <typename U, typename ... Args>
-		void push(const U &val, Args ...args)
+		template <typename ... Args>
+		void push(const T &val, Args ...args)
 		{
 			this->push(val);
 			this->push(args...);
 		};
+
+		template <typename ... Args>
+		void push(T &&val, Args ...args)
+		{
+			this->push(std::forward<T>(val));
+			this->push(args...);
+		};
 		
-		template <typename U>
-		void push(const U &val)
+		void push(const T &val)
 		{
 			this->push_back(val);
 		};
+		void push(T &&val)
+		{
+			this->push_back(std::forward<T>(val));
+		};
 
-		template <typename U>
-		void push_front(const U &val)
+		void push_front(const T &val)
 		{
 			this->insert(this->begin(), val);
 		};
+		void push_front(T &&val)
+		{
+			this->insert(this->begin(), std::forward<T>(val));
+		};
 
-		template <typename U>
-		void push_back(const U &val)
+		template <typename ...Args>
+		void emplace_front(Args&& ...args)
+		{
+			this->push_front(std::forward<Args>(args)...);
+		};
+
+		void push_back(const T &val)
 		{
 			this->insert(this->end(), val);
+		};
+		void push_back(T &&val)
+		{
+			this->insert(this->end(), std::forward<T>(val));
+		};
+
+		template <typename ...Args>
+		void emplace_back(Args&& ...args)
+		{
+			this->push_back(std::forward<Args>(args)...);
 		};
 
 		void pop_front()
@@ -241,10 +274,23 @@ namespace mystl
 		/* ----------------------------------------------------------
 			INSERT
 		---------------------------------------------------------- */
-		template <typename U>
-		auto insert(iterator it, const U &val) -> iterator
+		auto insert(iterator it, const T &val) -> iterator
 		{
 			return this->insert(it, (size_t)1, (const T&)val);
+		};
+
+		auto insert(iterator it, T &&val) -> iterator
+		{
+			// PREV AND NEXT
+			base::_ListNode<T> *prev = it._Get_node()->prev;
+			base::_ListNode<T> *next = it._Get_node();
+
+			// ITEM BETWEEN THE PREV AND NEXT
+			base::_ListNode<T> *item = new base::_ListNode<T>(prev, next, std::forward<T>(val));
+			prev->next = item;
+			next->prev = item;
+
+			return iterator(item);
 		};
 
 		auto insert(iterator it, size_t n, const T &val) -> iterator
@@ -312,6 +358,12 @@ namespace mystl
 			this->size_ += size;
 
 			return iterator(first_node);
+		};
+
+		template <typename ...Args>
+		iterator emplace(iterator it, Args&& ...args)
+		{
+			return this->insert(it, std::forward<Args>(args)...);
 		};
 
 	public:
@@ -515,6 +567,19 @@ namespace mystl
 			mystl::swap(prev->value, it->value);
 
 			return prev;
+		};
+
+	public:
+		void reverse()
+		{
+			for (base::_ListNode<T> *it = this->begin_; it != this->end_; )
+			{
+				base::_ListNode<T> *next = it->next; // RESERVE THE NEXT
+				std::swap(it->prev, it->next); // SWAP SEQUENCE
+
+				it = next; // STEP TO THE NEXT
+			}
+			this->begin_ = this->end_->prev;
 		};
 	};
 };

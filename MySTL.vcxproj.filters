@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\mystl\base\_ListNode.hpp">
+      <Filter>mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ConstIterator.hpp">
+      <Filter>mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\functional.hpp">
+      <Filter>mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\iterator.hpp">
+      <Filter>mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\list.hpp">
+      <Filter>mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ListIterator.hpp">
+      <Filter>mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ReverseIterator.hpp">
+      <Filter>mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\utility.hpp">
+      <Filter>mystl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="mystl">
+      <UniqueIdentifier>{c0ca797b-757a-4658-81f7-cd53a68b82f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mystl\base">
+      <UniqueIdentifier>{4cfa7bd4-00dc-4652-b9cb-c8475de13068}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

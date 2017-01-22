@@ -44,6 +44,7 @@ void test_list()
 
 	// STEP 5 - SORT
 	intList.sort();
+	intList.reverse();
 
 	std::cout << std::endl << "\tNOW THE LIST IS SORTED" << std::endl;
 	std::cout << "---------------------------------------" << std::endl;

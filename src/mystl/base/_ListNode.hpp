@@ -41,6 +41,12 @@ namespace base
 			this->next = next;
 			this->value = value;
 		};
+		_ListNode(_ListNode<T> *prev, _ListNode<T> *next, T &&value)
+		{
+			this->prev = prev;
+			this->next = next;
+			this->value = std::forward<T>(value);
+		};
 	};
 };
 };
