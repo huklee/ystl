@@ -572,6 +572,9 @@ namespace mystl
 	public:
 		void reverse()
 		{
+			base::_ListNode<T> *begin = this->end_->prev;
+			base::_ListNode<T> *prev_of_end = this->begin_;
+
 			for (base::_ListNode<T> *it = this->begin_; it != this->end_; )
 			{
 				base::_ListNode<T> *next = it->next; // RESERVE THE NEXT
@@ -579,7 +582,11 @@ namespace mystl
 
 				it = next; // STEP TO THE NEXT
 			}
-			this->begin_ = this->end_->prev;
+
+			// ADJUST THE BEGIN AND END
+			this->begin_ = this->end_->prev; // THE NEW BEGIN
+			this->end_->prev = prev_of_end;
+			this->end_->next = begin;
 		};
 	};
 };

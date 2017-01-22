@@ -49,7 +49,7 @@ void test_list()
 	std::cout << std::endl << "\tNOW THE LIST IS SORTED" << std::endl;
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << "---------------------------------------" << std::endl;
-	for (auto it = intList.begin(); it != intList.end(); it.operator++())
+	for (auto it = intList.rbegin(); it != intList.rend(); it.operator++())
 		std::cout << *it << std::endl;
 }
 
