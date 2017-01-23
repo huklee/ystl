@@ -1,7 +1,18 @@
 #include <iostream>
 
+#include <mystl/vector.hpp>
 #include <mystl/list.hpp>
 #include <mystl/iterator.hpp>
+
+void test_vector()
+{
+	mystl::vector<int> v;
+	for (int i = 0; i < 10; i++)
+		v.push_back(i);
+
+	for (auto it = v.begin(); it != v.end(); it.operator++())
+		std::cout << *it << std::endl;
+}
 
 void test_list()
 {
@@ -55,7 +66,7 @@ void test_list()
 
 void main()
 {
-	test_list();
+	test_vector();
 
 	system("pause");
 }

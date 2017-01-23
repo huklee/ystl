@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="src\mystl\functional.hpp">
+      <Filter>src\mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\iterator.hpp">
+      <Filter>src\mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\list.hpp">
+      <Filter>src\mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\utility.hpp">
+      <Filter>src\mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ListIterator.hpp">
+      <Filter>src\mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ReverseIterator.hpp">
+      <Filter>src\mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ConstIterator.hpp">
+      <Filter>src\mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\_ListNode.hpp">
+      <Filter>src\mystl\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\vector.hpp">
+      <Filter>src\mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\VectorIterator.hpp">
+      <Filter>src\mystl\base</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{b9fdbd72-a831-4dab-8859-55b9c5c4bc1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mystl">
+      <UniqueIdentifier>{2656bfbf-0dd9-42b2-96e3-8d69d6c6cf7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mystl\base">
+      <UniqueIdentifier>{fcbf55ec-0fa2-468e-a039-79ff4e0edbfe}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

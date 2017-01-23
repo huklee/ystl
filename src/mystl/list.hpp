@@ -164,32 +164,50 @@ namespace mystl
 			return this->end_->prev->value;
 		};
 
-		auto begin() const -> iterator
+		auto begin() -> iterator
 		{
 			return iterator(this->begin_);
+		};
+		auto begin() const -> const_iterator
+		{
+			return const_iterator(this->begin());
 		};
 		auto cbegin() const -> const_iterator
 		{
 			return const_iterator(this->begin());
 		};
-		auto rbegin() const -> reverse_iterator
+
+		auto rbegin() -> reverse_iterator
 		{
 			return reverse_iterator(this->end());
+		};
+		auto rbegin() const -> const_reverse_iterator
+		{
+			return const_reverse_iterator(this->rbegin());
 		};
 		auto crbegin() const -> const_reverse_iterator
 		{
 			return const_reverse_iterator(this->rbegin());		
 		};
 
-		auto end() const -> iterator
+		auto end() -> iterator
 		{
 			return iterator(this->end_);
+		};
+		auto end() const -> const_iterator
+		{
+			return const_iterator(this->end());
 		};
 		auto cend() const -> const_iterator
 		{
 			return const_iterator(this->end());
 		};
-		auto rend() const -> reverse_iterator
+
+		auto rend() -> reverse_iterator
+		{
+			return reverse_iterator(this->begin());
+		};
+		auto rend() const -> const_reverse_iterator
 		{
 			return reverse_iterator(this->begin());
 		};
