@@ -4,14 +4,14 @@
 #include <mystl/list.hpp>
 #include <mystl/iterator.hpp>
 
+#include <vector>
+
 void test_vector()
 {
-	mystl::vector<int> v;
-	for (int i = 0; i < 10; i++)
-		v.push_back(i);
+	std::vector<int> v(10, 5);
+	v.insert(v.end(), 4, 1);
 
-	for (auto it = v.begin(); it != v.end(); it.operator++())
-		std::cout << *it << std::endl;
+	std::cout << v.capacity() << std::endl;
 }
 
 void test_list()
@@ -60,7 +60,7 @@ void test_list()
 	std::cout << std::endl << "\tNOW THE LIST IS SORTED" << std::endl;
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << "---------------------------------------" << std::endl;
-	for (auto it = intList.rbegin(); it != intList.rend(); it.operator++())
+	for (auto it = intList.rbegin(); it != intList.rend(); ++it)
 		std::cout << *it << std::endl;
 }
 

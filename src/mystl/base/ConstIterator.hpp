@@ -61,11 +61,25 @@ namespace base
 			--this->base_;
 			return *this;
 		};
+		auto operator--(int) -> ConstIterator<Iterator>
+		{
+			ConstIterator<Iterator> it = *this;
+			--(*this);
+
+			return it;
+		};
 
 		auto operator++() -> ConstIterator<Iterator>&
 		{
 			++this->base_;
 			return *this;
+		};
+		auto operator++(int) -> ConstIterator<Iterator>
+		{
+			ConstIterator<Iterator> it = *this;
+			++(*this);
+
+			return it;
 		};
 
 	public:

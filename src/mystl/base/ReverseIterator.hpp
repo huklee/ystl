@@ -85,11 +85,25 @@ namespace base
 			++this->base_;
 			return *this;
 		};
+		auto operator--(int) -> ReverseIterator<Iterator>
+		{
+			ReverseIterator<Iterator> it = *this;
+			--(*this);
+
+			return it;
+		};
 
 		auto operator++() -> ReverseIterator<Iterator>&
 		{
 			--this->base_;
 			return *this;
+		};
+		auto operator++(int) -> ReverseIterator<Iterator>
+		{
+			ReverseIterator<Iterator> it = *this;
+			++(*this);
+
+			return it;
 		};
 
 	public:

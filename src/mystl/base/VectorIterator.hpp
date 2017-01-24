@@ -14,6 +14,9 @@ namespace base
 		typedef T value_type;
 
 	private:
+		/**
+		 * @hidden
+		 */
 		T *ptr_;
 
 	public:
@@ -26,6 +29,16 @@ namespace base
 		VectorIterator(T *ptr)
 		{
 			this->ptr_ = ptr;
+		};
+
+		VectorIterator(const VectorIterator<T> &obj)
+		{
+			this->ptr_ = obj.ptr_;
+		};
+
+		VectorIterator(const ConstIterator<VectorIterator<T>> &obj)
+		{
+			this->ptr_ = obj._Base().ptr_;
 		};
 
 	public:
@@ -81,11 +94,25 @@ namespace base
 			--this->ptr_;
 			return *this;
 		};
+		auto operator--(int) -> VectorIterator<T>
+		{
+			VectorIterator<T> it = *this;
+			--(*this);
+
+			return it;
+		};
 
 		auto operator++() -> VectorIterator<T>&
 		{
 			++this->ptr_;
 			return *this;
+		};
+		auto operator++(int) -> VectorIterator<T>
+		{
+			VectorIterator<T> it = *this;
+			++(*this);
+
+			return it;
 		};
 	};
 };

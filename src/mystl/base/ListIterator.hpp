@@ -119,10 +119,25 @@ namespace base
 			this->node_ = this->node_->prev;
 			return *this;
 		};
+		auto operator--(int) -> ListIterator<T>
+		{
+			ListIterator<T> it = *this;
+			--(*this);
+
+			return it;
+		};
+
 		auto operator++() -> ListIterator<T>&
 		{
 			this->node_ = this->node_->next;
 			return *this;
+		};
+		auto operator++(int) -> ListIterator<T>
+		{
+			ListIterator<T> it = *this;
+			++(*this);
+
+			return it;
 		};
 	};
 };

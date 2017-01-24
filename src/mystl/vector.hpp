@@ -96,18 +96,22 @@ namespace mystl
 	private:
 		void _Expand_capacity(size_t n)
 		{
-			T *last = this->data_ + this->size_;
-
 			// NEW ARRAY
 			T *data = new T[n];
-			for (T *it = this->data_; it != last; it++)
-				*(data++) = std::move(*it);
+
+			if (this->size_ != 0)
+			{
+				// MIGRATE DATA
+				T *last = this->data_ + this->size_;
+				for (T *it = this->data_; it != last; it++)
+					*(data++) = std::move(*it);
+			}
 
 			// ORDINARY DATA ARE TRUNCATED
 			delete[] this->data_;
 
 			// ASSIGN NEW MEMBERS
-			this->data_ = data;
+			this->data_ = data - this->size_;
 			this->capacity_ = n;
 		};
 
@@ -187,7 +191,7 @@ namespace mystl
 
 		auto end() -> iterator
 		{
-			return iterator(nullptr);
+			return iterator(this->data_ + this->size_);
 		};
 		auto end() const -> const_iterator
 		{
@@ -265,6 +269,142 @@ namespace mystl
 		/* ----------------------------------------------------------
 			INSERT
 		---------------------------------------------------------- */
+		auto insert(iterator it, const T &val) -> iterator
+		{
+			return iterator(it, (size_t)1, val);
+		};
+
+		auto insert(iterator it, T &&val) -> iterator
+		{
+			size_t index = (size_t)(it.operator->() - this->data_);
+			if (index == this->size_)
+			{
+				size_t size = this->size_ + n;
+				if (size > this->capacity_)
+					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+
+				*(this->data_ + this->size_) = std::forward<T>(val);
+				this->size_ = size;
+			}
+			else
+			{
+				size_t size = this->size_ + n;
+				size_t capacity = this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+				T *data = new T[capacity];
+
+				T *x = this->data_;
+				T *y = data;
+
+				// DATA DATA IN THE FRONT
+				for (; x != this->data_ + index; x++)
+					*(y++) = *x;
+
+				// MIDDLE, THE NEWLY INSERTED DATA
+				*(y++) = std::forward<T>(val);
+
+				// MIGRATE DATA IN THE BACK
+				for (; x != this->data_ + this->size_; x++)
+					*(y++) = *x;
+
+				// NEWLY ASSIGNED MEMBERS
+				this->data_ = data;
+				this->size_ = size;
+				this->capacity_ = capacity;
+			}
+
+			return iterator(this->data_ + index);
+		};
+
+		auto insert(iterator it, size_t n, const T &val) -> iterator
+		{
+			size_t index = (size_t)(it.operator->() - this->data_);
+			if (index == this->size_)
+			{
+				size_t size = this->size_ + n;
+				if (size > this->capacity_)
+					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+
+				T *it = this->data_ + this->size_;
+				while (n-- != 0)
+					*(it++) = val;
+
+				this->size_ = size;
+			}
+			else
+			{
+				size_t size = this->size_ + n;
+				size_t capacity = this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+				T *data = new T[capacity];
+
+				T *x = this->data_;
+				T *y = data;
+
+				// DATA DATA IN THE FRONT
+				for (; x != this->data_ + index; x++)
+					*(y++) = *x;
+
+				// MIDDLE, THE NEWLY INSERTED DATA
+				for (size_t i = 0; i < n; i++)
+					*(y++) = val;
+
+				// MIGRATE DATA IN THE BACK
+				for (; x != this->data_ + this->size_; x++)
+					*(y++) = *x;
+
+				// NEWLY ASSIGNED MEMBERS
+				this->data_ = data;
+				this->size_ = size;
+				this->capacity_ = capacity;
+			}
+
+			return iterator(this->data_ + index);
+		};
+
+		template <class InputIterator>
+		auto insert(iterator it, InputIterator first, InputIterator last) -> iterator
+		{
+			size_t index = (size_t)(it.operator->() - this->data_);
+			if (index == this->size_)
+			{
+				size_t size = this->size_ + n;
+				if (size > this->capacity_)
+					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+
+				T *it = this->data_ + this->size_;
+				for (; first != last; first++)
+					*(it++) = *first;
+
+				this->size_ = size;
+			}
+			else
+			{
+				size_t size = this->size_ + n;
+				size_t capacity = this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+				T *data = new T[capacity];
+
+				T *x = this->data_;
+				T *y = data;
+
+				// DATA DATA IN THE FRONT
+				for (; x != this->data_ + index; x++)
+					*(y++) = *x;
+
+				// MIDDLE, THE NEWLY INSERTED DATA
+				for (size_t i = 0; i < n; i++)
+					*(y++) = val;
+
+				// MIGRATE DATA IN THE BACK
+				for (; first != last; first++)
+					*(y++) = *first;
+
+				// NEWLY ASSIGNED MEMBERS
+				this->data_ = data;
+				this->size_ = size;
+				this->capacity_ = capacity;
+			}
+
+			return iterator(this->data_ + index);
+		};
 
 		/* ----------------------------------------------------------
 			ERASE
