@@ -146,10 +146,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\mystl\base\ConstIterator.hpp" />
+    <ClInclude Include="src\mystl\base\ArrayIterator.hpp" />
     <ClInclude Include="src\mystl\base\ListIterator.hpp" />
     <ClInclude Include="src\mystl\base\ReverseIterator.hpp" />
-    <ClInclude Include="src\mystl\base\VectorIterator.hpp.bak" />
     <ClInclude Include="src\mystl\base\_ListNode.hpp" />
+    <ClInclude Include="src\mystl\deque.hpp" />
     <ClInclude Include="src\mystl\functional.hpp" />
     <ClInclude Include="src\mystl\iterator.hpp" />
     <ClInclude Include="src\mystl\list.hpp" />

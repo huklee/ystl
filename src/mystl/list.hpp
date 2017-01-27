@@ -529,6 +529,21 @@ namespace mystl
 			mystl::swap(size_, obj.size_);
 		};
 
+		auto operator=(const list<T> &v) -> list<T>&
+		{
+			this->assign(v.begin(), v.end());
+
+			return *this;
+		};
+
+		auto operator=(list<T> &&v) -> list<T>&
+		{
+			this->clear();
+			this->swap(v);
+
+			return *this;
+		};
+
 	public:
 		/* ---------------------------------------------------------
 			SORT

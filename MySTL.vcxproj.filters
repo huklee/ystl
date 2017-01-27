@@ -13,23 +13,26 @@
     <ClInclude Include="src\mystl\utility.hpp">
       <Filter>src\mystl</Filter>
     </ClInclude>
-    <ClInclude Include="src\mystl\base\ListIterator.hpp">
-      <Filter>src\mystl\base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\mystl\base\ReverseIterator.hpp">
-      <Filter>src\mystl\base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\mystl\base\ConstIterator.hpp">
-      <Filter>src\mystl\base</Filter>
-    </ClInclude>
-    <ClInclude Include="src\mystl\base\_ListNode.hpp">
-      <Filter>src\mystl\base</Filter>
-    </ClInclude>
     <ClInclude Include="src\mystl\vector.hpp">
       <Filter>src\mystl</Filter>
     </ClInclude>
-    <ClInclude Include="src\mystl\base\VectorIterator.hpp.bak">
-      <Filter>src\mystl\base</Filter>
+    <ClInclude Include="src\mystl\deque.hpp">
+      <Filter>src\mystl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ConstIterator.hpp">
+      <Filter>src\mystl\base\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ReverseIterator.hpp">
+      <Filter>src\mystl\base\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ListIterator.hpp">
+      <Filter>src\mystl\base\list</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\_ListNode.hpp">
+      <Filter>src\mystl\base\list</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mystl\base\ArrayIterator.hpp">
+      <Filter>src\mystl\base\array</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +44,15 @@
     </Filter>
     <Filter Include="src\mystl\base">
       <UniqueIdentifier>{fcbf55ec-0fa2-468e-a039-79ff4e0edbfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mystl\base\iterator">
+      <UniqueIdentifier>{f6bfe579-07fa-427b-8c86-8974e097d109}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mystl\base\list">
+      <UniqueIdentifier>{7fe9baf5-4b57-45d2-9a0a-9adf2c70d96d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mystl\base\array">
+      <UniqueIdentifier>{78d1d7c5-bcad-4c11-b1ad-9d35faa9f384}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

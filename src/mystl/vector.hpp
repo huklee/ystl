@@ -105,7 +105,7 @@ namespace mystl
 			if (n < this->capacity_)
 				return;
 
-			this->_Set_capacity(n);
+			this->_Expand_capacity(n);
 		};
 
 		void resize(size_t n)
@@ -307,10 +307,33 @@ namespace mystl
 		=============================================================
 			PUSH & POP
 		---------------------------------------------------------- */
+		template <typename ... Args>
+		void push(const T &val, Args ...args)
+		{
+			this->push(val);
+			this->push(args...);
+		};
+
+		template <typename ... Args>
+		void push(T &&val, Args ...args)
+		{
+			this->push(std::forward<T>(val));
+			this->push(args...);
+		};
+
+		void push(const T &val)
+		{
+			this->push_back(val);
+		};
+		void push(T &&val)
+		{
+			this->push_back(std::forward<T>(val));
+		};
+
 		void push_back(const T &val)
 		{
 			if (this->capacity_ == this->size_)
-				this->_Expand_capacity(max<size_t>(this->capacity_ + 1, this->capacity_ * 1.5));
+				this->_Expand_capacity(max(this->capacity_ + 1, (size_t)(this->capacity_ * 1.5)));
 			
 			this->data_[this->size_++] = val;
 		};
@@ -338,35 +361,23 @@ namespace mystl
 
 		auto insert(iterator it, T &&val) -> iterator
 		{
-			size_t index = (size_t)(it.operator->() - this->data_);
+			size_t index = (size_t)(it - this->data_);
 			if (index == this->size_)
-			{
-				size_t size = this->size_ + n;
-				if (size > this->capacity_)
-					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
-
-				*(this->data_ + this->size_) = std::forward<T>(val);
-				this->size_ = size;
-			}
+				this->push_back(val);
 			else
 			{
-				size_t size = this->size_ + n;
-				size_t capacity = this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+				size_t size = this->size_ + 1;
+				size_t capacity = max(size, (size_t)(this->capacity_ * 1.5));
 				T *data = new T[capacity];
 
-				T *x = this->data_;
-				T *y = data;
-
 				// DATA DATA IN THE FRONT
-				for (; x != this->data_ + index; x++)
-					*(y++) = *x;
+				T *ptr = this->_Migrate(this->begin(), it, data);
 
 				// MIDDLE, THE NEWLY INSERTED DATA
-				*(y++) = std::forward<T>(val);
+				*(ptr++) = std::forward<T>(val);
 
 				// MIGRATE DATA IN THE BACK
-				for (; x != this->data_ + this->size_; x++)
-					*(y++) = *x;
+				this->_Migrate(it, this->end(), ptr);
 
 				// NEWLY ASSIGNED MEMBERS
 				this->data_ = data;
@@ -399,14 +410,14 @@ namespace mystl
 				T *data = new T[capacity];
 
 				// DATA DATA IN THE FRONT
-				T *pos = this->_Migrate(this->begin(), it, data);
+				T *ptr = this->_Migrate(this->begin(), it, data);
 
 				// MIDDLE, THE NEWLY INSERTED DATA
 				for (size_t i = 0; i < n; i++)
-					*(pos++) = val;
+					*(ptr++) = val;
 
 				// MIGRATE DATA IN THE BACK
-				this->_Migrate(it, this->end(), pos);
+				this->_Migrate(it, this->end(), ptr);
 
 				// NEWLY ASSIGNED MEMBERS
 				this->data_ = data;
@@ -427,9 +438,9 @@ namespace mystl
 				if (size > this->capacity_)
 					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
 
-				T *it = this->data_ + this->size_;
+				T *ptr = this->data_ + this->size_;
 				for (; first != last; first++)
-					*(it++) = *first;
+					*(ptr++) = *first;
 
 				this->size_ = size;
 			}
@@ -440,14 +451,14 @@ namespace mystl
 				T *data = new T[capacity];
 
 				// DATA DATA IN THE FRONT
-				T *pos = this->_Migrate(this->begin(), it, this->data_)
+				T *ptr = this->_Migrate(this->begin(), it, this->data_);
 
 				// MIDDLE, THE NEWLY INSERTED DATA
 				for (; first != last; first++)
-					*(pos++) = *first;
+					*(ptr++) = *first;
 
 				// MIGRATE DATA IN THE BACK
-				this->_Migrate(it, this->end(), pos);
+				this->_Migrate(it, this->end(), ptr);
 
 				// NEWLY ASSIGNED MEMBERS
 				this->data_ = data;
@@ -479,11 +490,26 @@ namespace mystl
 		/* ----------------------------------------------------------
 			SWAP
 		---------------------------------------------------------- */
-		void swap(const vector<T> &v)
+		void swap(vector<T> &v)
 		{
 			mystl::swap(this->data_, v.data_);
 			mystl::swap(this->size_, v.size_);
 			mystl::swap(this->capacity_, v.capacity_);
+		};
+
+		auto operator=(const vector<T> &v) -> vector<T>&
+		{
+			this->assign(v.begin(), v.end());
+
+			return *this;
+		};
+
+		auto operator=(vector<T> &&v) -> vector<T>&
+		{
+			this->clear();
+			this->swap(v);
+
+			return *this;
 		};
 	};
 };

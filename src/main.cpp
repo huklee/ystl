@@ -1,58 +1,91 @@
 #include <iostream>
 
 #include <mystl/vector.hpp>
+#include <mystl/deque.hpp>
 #include <mystl/list.hpp>
 #include <mystl/iterator.hpp>
 
-void test_vector()
-{
-	mystl::vector<int> v;
-	v.insert(v.end(), (size_t)10, 5);
-	v.insert(v.end(), (size_t)4, 1);
-
-	for (auto it = v.begin(); it != v.end(); it++)
-		std::cout << *it << std::endl;
-}
-
-void test_list()
+template <class Container>
+void test_linear_container(Container &intList)
 {
 	// INSERT 0 TO 9
-	mystl::list<int> intList;
 	for (int i = 0; i < 10; i++)
 		intList.push_back(i);
-	
+
 	// STEP 1 - ERASE
-	mystl::list<int>::iterator it = intList.begin();
+	typename Container::iterator it = intList.begin();
 	mystl::advance(it, 3);
 
 	it = intList.erase(it); // ERASE 3
 	std::cout << *it << std::endl; // PRINT 4
 
-	// STEP 2 - INSERT
+								   // STEP 2 - INSERT
 	it = intList.begin();
 	mystl::advance(it, 2);
 
 	it = intList.insert(it, -1); // INSERT -1
 	std::cout << *(++it) << std::endl; // PRINT 2
-	
-	// STEP 3 - RANGE ERASE
-	mystl::list<int>::iterator first = intList.begin();
-	mystl::list<int>::iterator last = intList.begin();
+
+									   // STEP 3 - RANGE ERASE
+	typename Container::iterator first = intList.begin();
+	typename Container::iterator last = intList.begin();
 	{
 		mystl::advance(first, 6);
 		mystl::advance(last, 9);
 	}
 	it = intList.erase(first, last); // ERASE FROM 6 TO 9
 	std::cout << *it << std::endl; // PRINT 9
-	
-	// STEP 4 - PUSH ANYTHING
-	intList.push(300, 123, 171, -400, 829, -201, 59);
+}
 
-	std::cout << std::endl << "\tNOT SORTED YET" << std::endl;
-	std::cout << "---------------------------------------" << std::endl;
-	for (auto it = intList.begin(); it != intList.end(); it.operator++())
+void test_vector()
+{
+	mystl::vector<int> v;
+	test_linear_container(v);
+
+	for (auto it = v.begin(); it != v.end(); it++)
 		std::cout << *it << std::endl;
+}
 
+void test_deque()
+{
+	typedef mystl::deque<int> Container;
+	Container intList;
+
+	// INSERT 0 TO 9
+	for (int i = 0; i < 10; i++)
+		intList.push_back(i);
+
+	// STEP 1 - ERASE
+	Container::iterator it = intList.begin();
+	mystl::advance(it, 3);
+
+	it = intList.erase(it); // ERASE 3
+	std::cout << *it << std::endl; // PRINT 4
+
+								   // STEP 2 - INSERT
+	it = intList.begin();
+	mystl::advance(it, 2);
+
+	it = intList.insert(it, -1); // INSERT -1
+	std::cout << *(++it) << std::endl; // PRINT 2
+
+									   // STEP 3 - RANGE ERASE
+	Container::iterator first = intList.begin();
+	Container::iterator last = intList.begin();
+	{
+		mystl::advance(first, 6);
+		mystl::advance(last, 9);
+	}
+	it = intList.erase(first, last); // ERASE FROM 6 TO 9
+	std::cout << *it << std::endl; // PRINT 9
+}
+
+void test_list()
+{
+	// STEP 1 TO 4
+	mystl::list<int> intList;
+	test_linear_container(intList);
+	
 	// STEP 5 - SORT
 	intList.sort();
 	intList.reverse();

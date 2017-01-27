@@ -29,6 +29,14 @@ namespace base
 			CONSTRUCTORS
 		---------------------------------------------------------- */
 		/**
+		 * Default Constructor.
+		 */
+		ListIterator()
+			: ListIterator(nullptr)
+		{
+		};
+		
+		/**
 		 * Initializer Constructor.
 		 */
 		ListIterator(_ListNode<T> *node)
@@ -50,15 +58,6 @@ namespace base
 		ListIterator(const ConstIterator<ListIterator<T>> &obj)
 		{
 			this->node_ = obj._Base().node_;
-		};
-
-	private:
-		/**
-		 * @hidden
-		 */
-		ListIterator()
-			: ListIterator(nullptr)
-		{
 		};
 
 	public:
@@ -90,7 +89,7 @@ namespace base
 
 	public:
 		/* ----------------------------------------------------------
-			COPARES
+			COMPARES
 		---------------------------------------------------------- */
 		auto operator==(const ListIterator<T> &obj) const -> bool
 		{
