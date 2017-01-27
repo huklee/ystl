@@ -18,4 +18,14 @@ namespace mystl
 				distance++;
 			}
 	};
+
+	template <class Iterator>
+	auto distance(Iterator first, Iterator last) -> size_t
+	{
+		size_t n = 0;
+		for (; first != last; first++)
+			n++;
+
+		return n;
+	};
 };

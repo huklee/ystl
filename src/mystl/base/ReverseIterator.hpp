@@ -11,13 +11,13 @@ namespace base
 	 * 
 	 * @author Jeongho Nam <http://samchon.org>
 	 */
-	template <class Iterator>
+	template <class Iterator, typename T = typename Iterator::value_type>
 	class ReverseIterator
 	{
 		template <typename Iterator> friend class ConstIterator;
 
 	public:
-		typedef typename Iterator::value_type value_type;
+		typedef T value_type;
 
 	private:
 		/**

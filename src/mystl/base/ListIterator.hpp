@@ -13,7 +13,7 @@ namespace base
 	class ListIterator
 	{
 		template <class Iterator> friend class ConstIterator;
-		template <class Iterator> friend class ReverseIterator;
+		template <class Iterator, typename T> friend class ReverseIterator;
 
 	public:
 		typedef T value_type;

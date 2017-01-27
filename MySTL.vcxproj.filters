@@ -28,7 +28,7 @@
     <ClInclude Include="src\mystl\vector.hpp">
       <Filter>src\mystl</Filter>
     </ClInclude>
-    <ClInclude Include="src\mystl\base\VectorIterator.hpp">
+    <ClInclude Include="src\mystl\base\VectorIterator.hpp.bak">
       <Filter>src\mystl\base</Filter>
     </ClInclude>
   </ItemGroup>

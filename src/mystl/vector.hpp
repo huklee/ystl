@@ -1,10 +1,9 @@
 #pragma once
 
-#include <mystl/base/VectorIterator.hpp>
-#include <mystl/base/ConstIterator.hpp>
 #include <mystl/base/ReverseIterator.hpp>
 
 #include <mystl/functional.hpp>
+#include <mystl/iterator.hpp>
 
 namespace mystl
 {
@@ -12,9 +11,9 @@ namespace mystl
 	class vector
 	{
 	public:
-		typedef base::VectorIterator<T> iterator;
-		typedef base::ConstIterator<iterator> const_iterator;
-		typedef base::ReverseIterator<iterator> reverse_iterator;
+		typedef T* iterator;
+		typedef const T* const_iterator;
+		typedef base::ReverseIterator<iterator, T> reverse_iterator;
 		typedef base::ConstIterator<reverse_iterator> const_reverse_iterator;
 
 	private:
@@ -51,9 +50,56 @@ namespace mystl
 			this->capacity_ = 0;
 		};
 
+		vector(const vector<T> &v)
+			: vector(v.begin(), v.end())
+		{
+		};
+
+		vector(vector<T> &&v)
+			: vector()
+		{
+			this->swap(v);
+		};
+
+		vector(size_t n, const T &val)
+			: vector()
+		{
+			this->assign(n, val);
+		};
+
+		template <class InputIterator>
+		vector(InputIterator first, InputIterator last)
+			: vector()
+		{
+			this->assign(first, last);
+		};
+
+		~vector()
+		{
+			delete[] this->data_;
+		};
+
 		/* ----------------------------------------------------------
 			ASSIGNERS
 		---------------------------------------------------------- */
+		void assign(size_t n, const T &val)
+		{
+			this->clear();
+			this->insert(this->end(), n, val);
+		};
+
+		template <class InputIterator>
+		void assign(InputIterator first, InputIterator last)
+		{
+			this->clear();
+			this->insert(this->end(), first, last);
+		};
+
+		void clear()
+		{
+			this->size_ = 0;
+		}
+
 		void reserve(size_t n)
 		{
 			if (n < this->capacity_)
@@ -115,6 +161,21 @@ namespace mystl
 			this->capacity_ = n;
 		};
 
+		// Migrate from [first, last) to target.
+		//
+		// @param first First position of the source array.
+		// @param last Last position of the source array.
+		// @param target Target array to migrate.
+		//
+		// @return Advanced position from target by the migration.
+		auto _Migrate(const T *first, const T *last, T *target) -> T*
+		{
+			for (; first != last; first++)
+				*(target++) = std::move(*first);
+
+			return target;
+		};
+
 	public:
 		/* ==========================================================
 			ACCESSORS
@@ -165,15 +226,15 @@ namespace mystl
 		---------------------------------------------------------- */
 		auto begin() -> iterator
 		{
-			return iterator(this->data_);
+			return this->data_;
 		};
 		auto begin() const -> const_iterator
 		{
-			return const_iterator(this->begin());
+			return this->data_;
 		};
 		auto cbegin() const -> const_iterator
 		{
-			return const_iterator(this->begin());
+			return this->data_;
 		};
 
 		auto rbegin() -> reverse_iterator
@@ -191,15 +252,15 @@ namespace mystl
 
 		auto end() -> iterator
 		{
-			return iterator(this->data_ + this->size_);
+			return this->data_ + this->size_;
 		};
 		auto end() const -> const_iterator
 		{
-			return const_iterator(this->end());
+			return this->data_ + this->size_;
 		};
 		auto cend() const -> const_iterator
 		{
-			return const_iterator(this->end());
+			return this->data_ + this->size_;
 		};
 
 		auto rend() -> reverse_iterator
@@ -242,6 +303,7 @@ namespace mystl
 				- PUSH & POP
 				- INSERT
 				- ERASE
+				- SWAP
 		=============================================================
 			PUSH & POP
 		---------------------------------------------------------- */
@@ -317,12 +379,12 @@ namespace mystl
 
 		auto insert(iterator it, size_t n, const T &val) -> iterator
 		{
-			size_t index = (size_t)(it.operator->() - this->data_);
-			if (index == this->size_)
+			size_t index = it - this->data_;
+			if (it == this->end())
 			{
 				size_t size = this->size_ + n;
 				if (size > this->capacity_)
-					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+					this->_Expand_capacity(max(size, (size_t)(this->capacity_ * 1.5)));
 
 				T *it = this->data_ + this->size_;
 				while (n-- != 0)
@@ -333,23 +395,18 @@ namespace mystl
 			else
 			{
 				size_t size = this->size_ + n;
-				size_t capacity = this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+				size_t capacity = max(size, (size_t)(this->capacity_ * 1.5));
 				T *data = new T[capacity];
 
-				T *x = this->data_;
-				T *y = data;
-
 				// DATA DATA IN THE FRONT
-				for (; x != this->data_ + index; x++)
-					*(y++) = *x;
+				T *pos = this->_Migrate(this->begin(), it, data);
 
 				// MIDDLE, THE NEWLY INSERTED DATA
 				for (size_t i = 0; i < n; i++)
-					*(y++) = val;
+					*(pos++) = val;
 
 				// MIGRATE DATA IN THE BACK
-				for (; x != this->data_ + this->size_; x++)
-					*(y++) = *x;
+				this->_Migrate(it, this->end(), pos);
 
 				// NEWLY ASSIGNED MEMBERS
 				this->data_ = data;
@@ -363,10 +420,10 @@ namespace mystl
 		template <class InputIterator>
 		auto insert(iterator it, InputIterator first, InputIterator last) -> iterator
 		{
-			size_t index = (size_t)(it.operator->() - this->data_);
-			if (index == this->size_)
+			size_t index = it - this->data_;
+			if (it == this->end())
 			{
-				size_t size = this->size_ + n;
+				size_t size = this->size_ + distance(first, last);
 				if (size > this->capacity_)
 					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
 
@@ -378,24 +435,19 @@ namespace mystl
 			}
 			else
 			{
-				size_t size = this->size_ + n;
-				size_t capacity = this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+				size_t size = this->size_ + distance(first, last);
+				size_t capacity = max<size_t>(size, this->capacity_ * 1.5);
 				T *data = new T[capacity];
 
-				T *x = this->data_;
-				T *y = data;
-
 				// DATA DATA IN THE FRONT
-				for (; x != this->data_ + index; x++)
-					*(y++) = *x;
+				T *pos = this->_Migrate(this->begin(), it, this->data_)
 
 				// MIDDLE, THE NEWLY INSERTED DATA
-				for (size_t i = 0; i < n; i++)
-					*(y++) = val;
+				for (; first != last; first++)
+					*(pos++) = *first;
 
 				// MIGRATE DATA IN THE BACK
-				for (; first != last; first++)
-					*(y++) = *first;
+				this->_Migrate(it, this->end(), pos);
 
 				// NEWLY ASSIGNED MEMBERS
 				this->data_ = data;
@@ -409,5 +461,29 @@ namespace mystl
 		/* ----------------------------------------------------------
 			ERASE
 		---------------------------------------------------------- */
+		auto erase(iterator it) -> iterator
+		{
+			return erase(it, it + 1);
+		};
+
+		auto erase(iterator first, iterator last) -> iterator
+		{
+			size_t size = last - first;
+
+			this->_Migrate(last, this->end(), first);
+			this->size_ -= size;
+
+			return first;
+		};
+
+		/* ----------------------------------------------------------
+			SWAP
+		---------------------------------------------------------- */
+		void swap(const vector<T> &v)
+		{
+			mystl::swap(this->data_, v.data_);
+			mystl::swap(this->size_, v.size_);
+			mystl::swap(this->capacity_, v.capacity_);
+		};
 	};
 };

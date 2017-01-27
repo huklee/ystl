@@ -4,14 +4,14 @@
 #include <mystl/list.hpp>
 #include <mystl/iterator.hpp>
 
-#include <vector>
-
 void test_vector()
 {
-	std::vector<int> v(10, 5);
-	v.insert(v.end(), 4, 1);
+	mystl::vector<int> v;
+	v.insert(v.end(), (size_t)10, 5);
+	v.insert(v.end(), (size_t)4, 1);
 
-	std::cout << v.capacity() << std::endl;
+	for (auto it = v.begin(); it != v.end(); it++)
+		std::cout << *it << std::endl;
 }
 
 void test_list()
