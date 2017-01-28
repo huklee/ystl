@@ -103,7 +103,7 @@ namespace base
 			this->index_--;
 			return *this;
 		};
-		auto operator--(int) -> ArrayIterator<Array>&
+		auto operator--(int) -> ArrayIterator<Array>
 		{
 			ArrayIterator<Array> it = *this;
 			--(*this);
@@ -128,7 +128,7 @@ namespace base
 
 			return *this;
 		};
-		auto operator++(int) -> ArrayIterator<Array>&
+		auto operator++(int) -> ArrayIterator<Array>
 		{
 			ArrayIterator<Array> it = *this;
 			++(*this);

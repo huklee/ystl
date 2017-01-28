@@ -8,6 +8,7 @@
 
 #include <mystl/functional.hpp>
 #include <mystl/utility.hpp>
+#include <mystl/base/Repeater.hpp>
 
 namespace mystl
 {
@@ -22,7 +23,7 @@ namespace mystl
 	public:
 		typedef base::ListIterator<T> iterator;
 		typedef base::ConstIterator<iterator> const_iterator;
-		typedef base::ReverseIterator<iterator> reverse_iterator;
+		typedef base::ReverseIterator<iterator, T> reverse_iterator;
 		typedef base::ConstIterator<reverse_iterator> const_reverse_iterator;
 
 	private:
@@ -133,8 +134,12 @@ namespace mystl
 		};
 
 	public:
-		/* ----------------------------------------------------------
+		/* ==========================================================
 			ACCESSORS
+				- BASIC ELEMENTS
+				- ITERATORS
+		=============================================================
+			BASIC ELEMENTS
 		---------------------------------------------------------- */
 		auto empty() const -> bool
 		{
@@ -164,17 +169,20 @@ namespace mystl
 			return this->end_->prev->value;
 		};
 
+		/* ----------------------------------------------------------
+			ITERATORS
+		---------------------------------------------------------- */
 		auto begin() -> iterator
 		{
 			return iterator(this->begin_);
 		};
 		auto begin() const -> const_iterator
 		{
-			return const_iterator(this->begin());
+			return const_iterator(iterator(this->begin_));
 		};
 		auto cbegin() const -> const_iterator
 		{
-			return const_iterator(this->begin());
+			return this->begin();
 		};
 
 		auto rbegin() -> reverse_iterator
@@ -183,11 +191,11 @@ namespace mystl
 		};
 		auto rbegin() const -> const_reverse_iterator
 		{
-			return const_reverse_iterator(this->rbegin());
+			return const_reverse_iterator(reverse_iterator(iterator(this->end_)));
 		};
 		auto crbegin() const -> const_reverse_iterator
 		{
-			return const_reverse_iterator(this->rbegin());		
+			return this->rbegin();
 		};
 
 		auto end() -> iterator
@@ -196,11 +204,11 @@ namespace mystl
 		};
 		auto end() const -> const_iterator
 		{
-			return const_iterator(this->end());
+			return const_iterator(iterator(this->end_));
 		};
 		auto cend() const -> const_iterator
 		{
-			return const_iterator(this->end());
+			return this->end();
 		};
 
 		auto rend() -> reverse_iterator
@@ -209,11 +217,11 @@ namespace mystl
 		};
 		auto rend() const -> const_reverse_iterator
 		{
-			return reverse_iterator(this->begin());
+			return const_reverse_iterator(reverse_iterator(iterator(this->begin_)));
 		};
 		auto crend() const -> const_reverse_iterator
 		{
-			return const_reverse_iterator(this->rend());
+			return this->rend();
 		};
 
 	public:
@@ -307,41 +315,21 @@ namespace mystl
 			base::_ListNode<T> *item = new base::_ListNode<T>(prev, next, std::forward<T>(val));
 			prev->next = item;
 			next->prev = item;
+			
+			// POST PROCESS
+			if (this->empty())
+				this->begin_ = item;
+			this->size_ += 1;
 
 			return iterator(item);
 		};
 
 		auto insert(iterator it, size_t n, const T &val) -> iterator
 		{
-			base::_ListNode<T> *prev = it._Get_node()->prev;
-			base::_ListNode<T> *first_node = nullptr;
+			base::Repeater<T> first(&val, 0);
+			base::Repeater<T> last(&val, n);
 
-			for (size_t i = 0; i < n; i++)
-			{
-				// CONSTRUCT ITEM, THE NEW NODE
-				base::_ListNode<T> *item = new base::_ListNode<T>(prev, nullptr, val);
-				if (i == 0)
-					first_node = item;
-
-				// INSERT ITEM NEXT OF THE PREV
-				prev->next = item;
-
-				// SHIFT ITEM LEFT TO BE THE PREV
-				prev = item;
-			}
-
-			// IF WAS EMPTY, THEN FIRST IS THE BEGIN
-			if (empty() || it == begin())
-				this->begin_ = first_node;
-
-			// CONNECT BETWEEN LAST INSERTED ITEM AND IT
-			prev->next = it._Get_node();
-			it._Get_node()->prev = prev;
-
-			// INCREASE NUMBER OF ELEMENTS
-			this->size_ += n;
-
-			return iterator(first_node);
+			return this->insert(it, first, last);
 		};
 
 		template <class InputIterator>
@@ -420,7 +408,7 @@ namespace mystl
 
 			// SHRINK SIZE
 			this->size_ -= distance;
-			if (prevNode == this->begin_)
+			if (firstNode == this->begin_)
 				this->begin_ = lastNode;
 
 			return iterator(lastNode);

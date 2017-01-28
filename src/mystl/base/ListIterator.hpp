@@ -17,7 +17,7 @@ namespace base
 
 	public:
 		typedef T value_type;
-
+	
 	private:
 		/**
 		 * @hidden
@@ -125,6 +125,14 @@ namespace base
 
 			return it;
 		};
+		auto operator-(size_t n) -> ListIterator<T>
+		{
+			ListIterator<T> it = *this;
+			while (n-- != 0)
+				--it;
+
+			return it;
+		};
 
 		auto operator++() -> ListIterator<T>&
 		{
@@ -135,6 +143,14 @@ namespace base
 		{
 			ListIterator<T> it = *this;
 			++(*this);
+
+			return it;
+		};
+		auto operator+(size_t n) -> ListIterator<T>
+		{
+			ListIterator<T> it = *this;
+			while (n-- != 0)
+				++it;
 
 			return it;
 		};

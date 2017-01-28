@@ -68,6 +68,14 @@ namespace base
 
 			return it;
 		};
+		auto operator-(size_t n) -> ConstIterator<Iterator>
+		{
+			ConstIterator<Iterator> it = *this;
+			while (n-- != 0)
+				--it;
+
+			return it;
+		};
 
 		auto operator++() -> ConstIterator<Iterator>&
 		{
@@ -81,10 +89,18 @@ namespace base
 
 			return it;
 		};
+		auto operator+(size_t n) -> ConstIterator<Iterator>
+		{
+			ConstIterator<Iterator> it = *this;
+			while (n-- != 0)
+				++it;
+
+			return it;
+		};
 
 	public:
 		/* ----------------------------------------------------------
-			COPARES
+			COMPARES
 		---------------------------------------------------------- */
 		auto operator==(const Iterator &obj) const -> bool
 		{

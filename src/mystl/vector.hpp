@@ -4,6 +4,7 @@
 
 #include <mystl/functional.hpp>
 #include <mystl/iterator.hpp>
+#include <mystl/base/Repeater.hpp>
 
 namespace mystl
 {
@@ -200,7 +201,7 @@ namespace mystl
 
 		auto empty() const -> bool
 		{
-			return this->size_ != 0;
+			return this->size_ == 0;
 		};
 
 		auto front() -> T&
@@ -243,11 +244,11 @@ namespace mystl
 		};
 		auto rbegin() const -> const_reverse_iterator
 		{
-			return const_reverse_iterator(this->rbegin());
+			return const_reverse_iterator(reverse_iterator(this->data_ + this->size_));
 		};
 		auto crbegin() const -> const_reverse_iterator
 		{
-			return const_reverse_iterator(this->rbegin());
+			return this->rbegin();
 		};
 
 		auto end() -> iterator
@@ -269,11 +270,11 @@ namespace mystl
 		};
 		auto rend() const -> const_reverse_iterator
 		{
-			return reverse_iterator(this->begin());
+			return const_reverse_iterator(reverse_iterator(this->data_));
 		};
 		auto crend() const -> const_reverse_iterator
 		{
-			return const_reverse_iterator(this->rend());
+			return this->rend();
 		};
 
 		/* ----------------------------------------------------------
@@ -341,7 +342,7 @@ namespace mystl
 		void push_back(T &&val)
 		{
 			if (this->capacity_ == this->size_)
-				this->_Expand_capacity(max<size_t>(this->capacity_ + 1, this->capacity_ * 1.5));
+				this->_Expand_capacity(max(this->capacity_ + 1, (size_t)(this->capacity_ * 1.5)));
 
 			this->data_[this->size_++] = std::forward<T>(val);
 		};
@@ -390,54 +391,27 @@ namespace mystl
 
 		auto insert(iterator it, size_t n, const T &val) -> iterator
 		{
-			size_t index = it - this->data_;
-			if (it == this->end())
-			{
-				size_t size = this->size_ + n;
-				if (size > this->capacity_)
-					this->_Expand_capacity(max(size, (size_t)(this->capacity_ * 1.5)));
+			base::Repeater<T> first(&val, 0);
+			base::Repeater<T> last(&val, n);
 
-				T *it = this->data_ + this->size_;
-				while (n-- != 0)
-					*(it++) = val;
-
-				this->size_ = size;
-			}
-			else
-			{
-				size_t size = this->size_ + n;
-				size_t capacity = max(size, (size_t)(this->capacity_ * 1.5));
-				T *data = new T[capacity];
-
-				// DATA DATA IN THE FRONT
-				T *ptr = this->_Migrate(this->begin(), it, data);
-
-				// MIDDLE, THE NEWLY INSERTED DATA
-				for (size_t i = 0; i < n; i++)
-					*(ptr++) = val;
-
-				// MIGRATE DATA IN THE BACK
-				this->_Migrate(it, this->end(), ptr);
-
-				// NEWLY ASSIGNED MEMBERS
-				this->data_ = data;
-				this->size_ = size;
-				this->capacity_ = capacity;
-			}
-
-			return iterator(this->data_ + index);
+			return this->insert(it, first, last);
 		};
 
 		template <class InputIterator>
 		auto insert(iterator it, InputIterator first, InputIterator last) -> iterator
 		{
+			size_t size = this->size_ + distance(first, last);
 			size_t index = it - this->data_;
+
 			if (it == this->end())
 			{
-				size_t size = this->size_ + distance(first, last);
-				if (size > this->capacity_)
-					this->_Expand_capacity(max<size_t>(size, this->capacity_ * 1.5));
+				//----
+				// INSERT ITEMS IN THE BACK
+				//----
+				if (size > this->capacity_) // EXPAND CAPACITY IF REQUIRED
+					this->_Expand_capacity(max(size, (size_t)(this->capacity_ * 1.5)));
 
+				// NEWLY INSERTED ITEMS
 				T *ptr = this->data_ + this->size_;
 				for (; first != last; first++)
 					*(ptr++) = *first;
@@ -446,8 +420,10 @@ namespace mystl
 			}
 			else
 			{
-				size_t size = this->size_ + distance(first, last);
-				size_t capacity = max<size_t>(size, this->capacity_ * 1.5);
+				//----
+				// INSERT ITEMS IN THE MIDDLE
+				//----
+				size_t capacity = max(size, (size_t)(this->capacity_ * 1.5));
 				T *data = new T[capacity];
 
 				// DATA DATA IN THE FRONT

@@ -2,7 +2,9 @@
 
 #include <mystl/vector.hpp>
 #include <mystl/list.hpp>
+
 #include <mystl/base/ArrayIterator.hpp>
+#include <mystl/base/Repeater.hpp>
 
 namespace mystl
 {
@@ -31,14 +33,14 @@ namespace mystl
 		/**
 		 * @hidden
 		 */
-		static const size_t MIN_CAPACITY = 100;
+		static const size_t MIN_CAPACITY = 32;
 
 	public:
 		typedef T value_type;
 
 		typedef base::ArrayIterator<deque<T>> iterator;
 		typedef base::ConstIterator<iterator> const_iterator;
-		typedef base::ReverseIterator<iterator> reverse_iterator;
+		typedef base::ReverseIterator<iterator, T> reverse_iterator;
 		typedef base::ConstIterator<reverse_iterator> const_reverse_iterator;
 
 	private:
@@ -99,11 +101,36 @@ namespace mystl
 		{
 			this->swap(obj);
 		};
+
+		deque(size_t n, const T &val)
+			: deque()
+		{
+			this->assign(n, val);
+		};
+
+		template <typename InputIterator>
+		deque(InputIterator first, InputIterator last)
+		{
+			this->assign(first, last);
+		};
 		
 	public:
 		/* ----------------------------------------------------------
 			ASSIGNERS
 		---------------------------------------------------------- */
+		void assign(size_t n, const T &val)
+		{
+			this->clear();
+			this->insert(this->end(), n, val);
+		};
+
+		template <typename InputIterator>
+		void assign(InputIterator first, InputIterator last)
+		{
+			this->clear();
+			this->insert(this->end(), first, last);
+		};
+
 		void reserve(size_t capacity)
 		{
 			if (capacity < this->capacity_)
@@ -112,13 +139,13 @@ namespace mystl
 			// NEW MEMBERS TO BE ASSSIGNED
 			list<vector<T>> matrix;
 			
-			size_t col_size = this->_Get_col_size(capacity);
+			size_t col_size = this->_Compute_col_size(capacity);
 			matrix.push_back(vector<T>());
 			matrix.back().reserve(col_size);
 
 			// RE-FILL
-			for (auto row = this->matrix_.begin(); row != this->matrix_.end(); row++)
-				for (size_t col = 0; col < row->size(); col++)
+			for (auto row = this->matrix_.begin(); row != this->matrix_.end(); ++row)
+				for (size_t col = 0; col < row->size(); ++col)
 				{
 					if (matrix.back().size() >= col_size)
 					{
@@ -164,7 +191,7 @@ namespace mystl
 
 		auto empty() const -> bool
 		{
-			return this->size_ != 0;
+			return this->size_ == 0;
 		};
 
 		auto front() -> T&
@@ -185,6 +212,7 @@ namespace mystl
 			return this->operator[](this->size_ - 1);
 		};
 
+	public:
 		/* ----------------------------------------------------------
 			ITERATORS
 		---------------------------------------------------------- */
@@ -194,11 +222,26 @@ namespace mystl
 		};
 		auto begin() const -> const_iterator
 		{
-			return const_iterator(this->begin());
+			return const_iterator(iterator(empty() ? end() : iterator((deque<T>*)this, 0)));
 		};
 		auto cbegin() const -> const_iterator
 		{
-			return const_iterator(this->begin());
+			return this->begin();
+		};
+
+		auto rbegin() -> reverse_iterator
+		{
+			return reverse_iterator(this->end());
+		};
+		auto rbegin() const -> const_reverse_iterator
+		{
+			iterator it((deque<T>*)this, (size_t)-1);
+
+			return const_reverse_iterator(reverse_iterator(it));
+		};
+		auto crbegin() const -> const_reverse_iterator
+		{
+			return this->rbegin();
 		};
 
 		auto end() -> iterator
@@ -207,11 +250,26 @@ namespace mystl
 		};
 		auto end() const -> const_iterator
 		{
-			return const_iterator(this->end());
+			return const_iterator(iterator((deque<T>*)this, -1));
 		};
 		auto cend() const -> const_iterator
 		{
-			return const_iterator(this->end());
+			return this->end();
+		};
+
+		auto rend() -> reverse_iterator
+		{
+			return reverse_iterator(this->begin());
+		};
+		auto rend() const -> const_reverse_iterator
+		{
+			iterator it((deque<T>*)this, this->empty() ? (size_t)-1 : 0);
+
+			return const_reverse_iterator(reverse_iterator(it));
+		};
+		auto crend() const -> const_reverse_iterator
+		{
+			return this->rend();
 		};
 
 	public:
@@ -258,7 +316,7 @@ namespace mystl
 		void _Fetch_index(size_t index, typename list<vector<T>>::iterator &r, size_t &c) const
 		{
 			list<vector<T>>::iterator row;
-			for (row = this->matrix_.begin(); row != this->matrix_.end(); row++)
+			for (row = this->matrix_.begin(); row != this->matrix_.end(); ++row)
 			{
 				size_t size = row->size();
 				if (index < size)
@@ -278,15 +336,15 @@ namespace mystl
 		/**
 		 * @hidden
 		 */
-		auto _Get_col_size() const -> size_t
+		auto _Compute_col_size() const -> size_t
 		{
-			return this->_Get_col_size(this->capacity_);
+			return this->_Compute_col_size(this->capacity_);
 		};
 
 		/**
 		 * @hidden
 		 */
-		auto _Get_col_size(size_t capacity) const -> size_t
+		auto _Compute_col_size(size_t capacity) const -> size_t
 		{
 			return capacity / ROW_SIZE;
 		};
@@ -326,36 +384,44 @@ namespace mystl
 
 		void push_front(const T &val)
 		{
+			// ADD CAPACITY & ROW
+			this->_Try_expand_capacity(this->size_ + 1);
+			this->_Try_add_row_at_front();
+
+			// INSERT VALUE
 			this->matrix_.front().insert(this->matrix_.front().begin(), val);
 			this->size_++;
-
-			if (this->size_ > this->capacity_)
-				this->reserve(this->size_ * 2);
 		};
 		void push_front(T &&val)
 		{
+			// ADD CAPACITY & ROW
+			this->_Try_expand_capacity(this->size_ + 1);
+			this->_Try_add_row_at_front();
+
+			// INSERT VALUE
 			this->matrix_.front().insert(this->matrix_.front().begin(), std::forward<T>(val));
 			this->size_++;
-
-			if (this->size_ > this->capacity_)
-				this->reserve(this->size_ * 2);
 		};
 
 		void push_back(const T &val)
 		{
+			// ADD CAPACITY & ROW
+			this->_Try_expand_capacity(this->size_ + 1);
+			this->_Try_add_row_at_back();
+
+			// INSERT VALUE
 			this->matrix_.back().push_back(val);
 			this->size_++;
-
-			if (this->size_ > this->capacity_)
-				this->reserve(this->size_ * 2);
 		};
 		void push_back(T &&val)
 		{
+			// ADD CAPACITY & ROW
+			this->_Try_expand_capacity(this->size_ + 1);
+			this->_Try_add_row_at_back();
+
+			// INSERT VALUE
 			this->matrix_.back().push_back(std::forward<T>(val));
 			this->size_++;
-
-			if (this->size_ > this->capacity_)
-				this->reserve(this->size_ * 2);
 		};
 
 		void pop_front()
@@ -382,6 +448,7 @@ namespace mystl
 				this->matrix_.pop_back();
 		};
 
+	public:
 		/* ----------------------------------------------------------
 			INSERT
 		----------------------------------------------------------*/
@@ -392,15 +459,160 @@ namespace mystl
 
 		auto insert(iterator pos, size_t n, const T &val) -> iterator
 		{
-			return pos;
+			base::Repeater<T> first(&val, 0);
+			base::Repeater<T> last(&val, n);
+
+			return this->insert(pos, first, last);
 		};
 
 		template <typename InputIterator>
 		auto insert(iterator pos, InputIterator first, InputIterator last) -> iterator
 		{
+			size_t size = this->size_ + distance(first, last);
+
+			if (pos == this->end())
+			{
+				// EXPAND CAPACITY IF REQUIRED
+				this->_Try_expand_capacity(size);
+				
+				// INSERT TO END
+				this->_Insert_to_end(first, last);
+			}
+			else
+			{
+				// INSERT ITEMS IN THE MIDDLE
+				if (size > this->capacity_)
+				{
+					deque<T> v;
+					v.reserve(max((size_t)(this->capacity_ * 1.5), size));
+
+					v._Insert_to_end(this->begin(), pos);
+					v._Insert_to_end(first, last);
+					v._Insert_to_end(pos, this->end());
+
+					this->swap(v);
+				}
+				else
+					this->_Insert_to_middle(pos, first, last);
+			}
+			this->size_ = size;
 			return pos;
 		};
 
+	private:
+		/**
+		 * @hidden
+		 */
+		template <typename InputIterator>
+		void _Insert_to_end(InputIterator first, InputIterator last)
+		{
+			// INSERT ITEMS IN THE BACK
+			for (; first != last; ++first)
+			{
+				// ADD ROW IF REQUIRED
+				this->_Try_add_row_at_back();
+
+				// INSERT VALUE
+				this->matrix_.back().push_back(*first);
+			}
+		};
+
+		/**
+		 * @hidden
+		 */
+		template <typename InputIterator>
+		void _Insert_to_middle(iterator pos, InputIterator first, InputIterator last)
+		{
+			size_t col_size = this->_Compute_col_size();
+
+			// POSITION OF MATRIX
+			list<vector<T>>::iterator row;
+			size_t index;
+
+			this->_Fetch_index(pos._Get_index(), row, index);
+
+			// MOVE BACK SIDE TO TEMPORARY VECTOR
+			vector<T> back_array;
+			back_array.reserve(col_size);
+
+			for (T *it = row->begin() + index; it != row->end(); ++it)
+				back_array.push_back(std::move(*it));
+			row->erase(row->begin() + index, row->end());
+
+			// INSERT ITEMS
+			while (first != last)
+			{
+				if (row->size() == col_size && this->matrix_.size() < ROW_SIZE)
+				{
+					row = this->matrix_.insert(++row, vector<T>());
+					row->reserve(col_size);
+				}
+				row->push_back(*first);
+				++first;
+			}
+
+			// INSERT THE BACK SIDE ITEMS
+			for (auto it = back_array.begin(); it != back_array.end(); it++)
+			{
+				if (row->size() == col_size && this->matrix_.size() < ROW_SIZE)
+				{
+					row = this->matrix_.insert(++row, vector<T>());
+					row->reserve(col_size);
+				}
+				row->push_back(std::move(*it));
+			}
+		};
+
+		/**
+		 * @hidden
+		 */
+		auto _Try_expand_capacity(size_t size) -> bool
+		{
+			if (size <= this->capacity_)
+				return false;
+
+			// MAX (CAPACITY * 1.5, TARGET SIZE)
+			this->reserve(max((size_t)(this->capacity_ * 1.5), size));
+			return true;
+		};
+
+		/**
+		 * @hidden
+		 */
+		auto _Try_add_row_at_front() -> bool
+		{
+			size_t col_size = this->_Compute_col_size();
+
+			if (this->matrix_.front().size() >= col_size && this->matrix_.size() < ROW_SIZE)
+			{
+				this->matrix_.push_front(vector<T>());
+				this->matrix_.front().reserve(col_size);
+
+				return true;
+			}
+			else
+				return false;
+		};
+
+		/**
+		 * @hidden
+		 */
+		auto _Try_add_row_at_back() -> bool
+		{
+			size_t col_size = this->_Compute_col_size();
+
+			if (this->matrix_.back().size() >= col_size && this->matrix_.size() < ROW_SIZE)
+			{
+				this->matrix_.push_back(vector<T>());
+				this->matrix_.back().reserve(col_size);
+
+				return true;
+			}
+			else
+				return false;
+		};
+
+	public:
 		/* ----------------------------------------------------------
 			ERASE
 		---------------------------------------------------------- */
@@ -411,7 +623,7 @@ namespace mystl
 
 		auto erase(iterator first, iterator last) -> iterator
 		{
-			if (first == this->end())
+	 		if (first == this->end())
 				return first;
 
 			// INDEXING
@@ -421,34 +633,59 @@ namespace mystl
 			else
 				size = last._Get_index() - first._Get_index();
 
-			this->size_ -= size;
-
 			// ERASING
-			while (size != 0)
+			list<vector<T>>::iterator first_row = this->matrix_.end();
+			list<vector<T>>::iterator second_row = this->matrix_.end();
+			size_t i = 0;
+
+			size_t left_size = size;
+			while (left_size != 0)
 			{
 				// FIND MATCHED ROW AND COLUMN
 				list<vector<T>>::iterator row;
 				size_t col;
 
 				this->_Fetch_index(first._Get_index(), row, col);
-				
-				// ERASE FROM THE ROW
-				size_t my_delete_size = min(size, row->size() - col);
-				row->erase(row->begin() + first._Get_index(), row->begin() + first._Get_index() + my_delete_size);
 
-				// ERASE THE ENTIRE ROW?
+				// ERASE FROM THE ROW
+				size_t my_delete_size = min(left_size, row->size() - col);
+				row->erase(row->begin() + col, row->begin() + col + my_delete_size);
+
+				// TO MERGE
+				if (!row->empty())
+					if (i == 0)
+						first_row = row;
+					else
+						second_row = row;
+
+				// ERASE THE ENTIRE ROW IF REQUIRED
 				if (row->empty() && this->matrix_.size() > 1)
 					this->matrix_.erase(row);
 
-				size -= my_delete_size;
+				// TO THE NEXT STEP
+				left_size -= my_delete_size;
+				i++;
 			}
 
-			if (last == this->end())
+			// MERGE FIRST AND SECOND ROW
+			if (first_row != this->matrix_.end() && second_row != this->matrix_.end()
+				&& first_row->size() + second_row->size() <= this->_Compute_col_size())
+			{
+				for (auto it = second_row->begin(); it != second_row->end(); ++it)
+					first_row->push_back(std::move(*it));
+
+				this->matrix_.erase(second_row);
+			}
+
+			// RETURN
+			this->size_ -= size;
+			if (first._Get_index() >= this->size())
 				return this->end();
 			else
 				return first;
 		};
 
+	public:
 		/* ----------------------------------------------------------
 			SWAP
 		---------------------------------------------------------- */

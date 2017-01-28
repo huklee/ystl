@@ -11,7 +11,7 @@ namespace base
 	 * 
 	 * @author Jeongho Nam <http://samchon.org>
 	 */
-	template <class Iterator, typename T = typename Iterator::value_type>
+	template <class Iterator, typename T>
 	class ReverseIterator
 	{
 		template <typename Iterator> friend class ConstIterator;
@@ -58,20 +58,20 @@ namespace base
 			return it;
 		};
 
-		auto operator*() -> typename Iterator::value_type&
+		auto operator*() -> T&
 		{
 			return this->base_.operator*();
 		};
-		auto operator*() const -> const typename Iterator::value_type&
+		auto operator*() const -> const T&
 		{
 			return this->base_.operator*();
 		};
 
-		auto operator->() -> typename Iterator::value_type*
+		auto operator->() -> T*
 		{
 			return this->base_.operator->();
 		};
-		auto operator->() const -> const typename Iterator::value_type*
+		auto operator->() const -> const T*
 		{
 			return this->base_.operator->();
 		};
@@ -80,28 +80,44 @@ namespace base
 		/* ----------------------------------------------------------
 			MOVERS
 		---------------------------------------------------------- */
-		auto operator--() -> ReverseIterator<Iterator>&
+		auto operator--() -> ReverseIterator<Iterator, T>&
 		{
 			++this->base_;
 			return *this;
 		};
-		auto operator--(int) -> ReverseIterator<Iterator>
+		auto operator--(int) -> ReverseIterator<Iterator, T>
 		{
-			ReverseIterator<Iterator> it = *this;
+			ReverseIterator<Iterator, T> it = *this;
 			--(*this);
 
 			return it;
 		};
+		auto operator-(size_t n) -> ReverseIterator<Iterator, T>
+		{
+			ConstIterator<Iterator> it = *this;
+			while (n-- != 0)
+				--it;
 
-		auto operator++() -> ReverseIterator<Iterator>&
+			return it;
+		};
+
+		auto operator++() -> ReverseIterator<Iterator, T>&
 		{
 			--this->base_;
 			return *this;
 		};
-		auto operator++(int) -> ReverseIterator<Iterator>
+		auto operator++(int) -> ReverseIterator<Iterator, T>
 		{
-			ReverseIterator<Iterator> it = *this;
+			ReverseIterator<Iterator, T> it = *this;
 			++(*this);
+
+			return it;
+		};
+		auto operator+(size_t n) -> ReverseIterator<Iterator, T>
+		{
+			ConstIterator<Iterator> it = *this;
+			while (n-- != 0)
+				++it;
 
 			return it;
 		};
@@ -110,20 +126,20 @@ namespace base
 		/* ----------------------------------------------------------
 			COMPARES
 		---------------------------------------------------------- */
-		auto operator==(const ReverseIterator<Iterator> &obj) const -> bool
+		auto operator==(const ReverseIterator<Iterator, T> &obj) const -> bool
 		{
 			return this->base_ == obj.base_;
 		};
-		auto operator==(const ConstIterator<ReverseIterator<Iterator>> &obj) const -> bool
+		auto operator==(const ConstIterator<ReverseIterator<Iterator, T>> &obj) const -> bool
 		{
 			return this->base_ == obj._Base();
 		};
 
-		auto operator!=(const ReverseIterator<Iterator> &obj) const -> bool
+		auto operator!=(const ReverseIterator<Iterator, T> &obj) const -> bool
 		{
 			return !this->operator==(obj);
 		};
-		auto operator!=(const ConstIterator<ReverseIterator<Iterator>> &obj) const -> bool
+		auto operator!=(const ConstIterator<ReverseIterator<Iterator, T>> &obj) const -> bool
 		{
 			return !this->operator==(obj);
 		};

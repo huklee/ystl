@@ -34,6 +34,9 @@
     <ClInclude Include="src\mystl\base\ArrayIterator.hpp">
       <Filter>src\mystl\base\array</Filter>
     </ClInclude>
+    <ClInclude Include="src\mystl\base\Repeater.hpp">
+      <Filter>src\mystl\base\iterator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
